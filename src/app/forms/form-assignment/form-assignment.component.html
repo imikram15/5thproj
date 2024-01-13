@@ -1,0 +1,71 @@
+<div class="container">
+    <form [formGroup]="assignmentForm">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="row " style="text-align: center; ">
+                    <h1>Form Assignment</h1>
+                </div>
+                <div  >
+                    <form class="row" [formGroup]="inputForm" (submit)="inputadd()">
+                        <div class="col-md-3 form-group">
+                            <input matInput placeholder="Enter product name" formControlName="productName">
+                        </div>
+                        <div class="col-md-3 form-group ">
+                            <mat-select formControlName="type" placeholder="Product Type">
+                                <mat-option value="clothes">Clothes</mat-option>
+                                <mat-option value="shoes">Shoes</mat-option>
+                            </mat-select>
+                        </div>
+                        <div class="col-md-1 form-group">
+                            <div class="input-group mb-3">
+                                <div class="input-group-text">
+                                    <input type="checkbox" [defaultChecked]="true" formControlName="box"
+                                        aria-label="Checkbox for following text input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <input matInput placeholder="Enter the Price" formControlName="price">
+                        </div>
+
+                        <div style="text-align: center;" class="col-md-2 form-group">
+                            <button class="btn btn-primary " style="font-size: small; "
+                                type="submit" (click)="saveData()">Save</button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </form>
+    <br>
+    <table class="table table-bordered table-striped" style="text-align: center;" [formGroup]="assignmentForm">
+        <thead >
+            <tr  >
+                <th>Id</th>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+
+        </thead>
+        <tbody formArrayName="productRows" >
+           <tr *ngFor="let product of  assignmentForm.get('productRows')?.value; let i = index"   [formGroupName]="i">
+            <td> {{i+1}} </td>
+            <td> {{product.productName}} </td>
+            <td> {{product.type}} </td>
+            <td> {{product.box}} </td>
+            <td> {{product.price}} </td>
+            <td style="display: flex; justify-content: space-around;" >
+                <button style="font-size: small;" class="btn btn-success" (click)="editData(i)">Edit</button>
+                <button style="font-size: small; " class="btn btn-danger" (click)="deleteProduct(i)">Delete</button>
+            </td>
+           </tr>     
+        </tbody>
+    </table>
+</div>
+
+
+
