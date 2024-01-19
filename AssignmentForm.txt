@@ -1,0 +1,221 @@
+app.component.ts:
+
+ assignmentForm: FormGroup;
+  inputForm: FormGroup;
+  edit: any;
+  rowindex: any;
+  forUpdate: boolean = false;
+
+  constructor(private fb: FormBuilder) {
+    this.inputForm = this.fb.group({
+      productName: ['', Validators.required],
+      type: ['Product Type', Validators.required],
+      box: ['true'],
+      price: ['', Validators.required]
+    })
+    this.assignmentForm = this.fb.group({
+      productRows: this.fb.array([])
+    })
+  }
+
+  get productRows() {
+      return this.assignmentForm.controls['productRows'] as FormArray
+  }
+
+  saveData() {
+    if (this.rowindex == null) {
+
+      (this.assignmentForm.get("productRows") as FormArray).push(this.fb.group({
+        productName: [this.inputForm.value.productName],
+        type: [this.inputForm.value.type],
+        box: [this.inputForm.value.box],
+        price: [this.inputForm.value.price]
+      }))
+      this.inputForm.get('productName')?.reset()
+      this.inputForm.get('price')?.reset()
+      this.inputForm.get('type')?.reset()
+      
+    }
+
+    else {
+      const control3 = (this.assignmentForm.get('productRows') as FormArray).at(this.rowindex) as FormGroup;
+
+      control3.setValue({
+        productName: this.inputForm.get('productName')?.value,
+        type: this.inputForm.get('type')?.value,
+        box: this.inputForm.get('box')?.value,
+        price: this.inputForm.get('price')?.value,
+      });
+      this.inputForm.get('productName')?.reset()
+      this.inputForm.get('price')?.reset()
+      this.inputForm.get('type')?.reset()
+      this.forUpdate = false;
+    }
+  }
+  
+  
+  editData(index: any) {
+   
+    this.rowindex = index;
+    this.edit = this.assignmentForm.value.productRows[this.rowindex];
+    this.inputForm.setValue({
+      productName: this.edit?.productName,
+      type: this.edit?.type,
+      box: this.edit?.box,
+      price: this.edit?.price,
+    });
+    this.forUpdate = !this.forUpdate;
+   
+  }
+
+  deleteProduct(productindex: number) {
+    let text = "Are You Sure. you wanr to Delete it?";
+    if (confirm(text) == true) {
+      this.productRows.removeAt(productindex);
+    }
+    }
+
+
+app.component.html:
+<div class="container">
+    <form [formGroup]="assignmentForm">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="row " style="text-align: center; ">
+                    <h1>Form Assignment</h1>
+                </div>
+                <div>
+                    <form class="row" [formGroup]="inputForm" (submit)="saveData()">
+                        <div class="col-md-3 form-group">
+                            <input matInput placeholder="Enter product name" formControlName="productName">
+                        </div>
+                        <div class="col-md-3 form-group ">
+                            <mat-select formControlName="type" placeholder="Product Type">
+                                <mat-option value="clothes">Clothes</mat-option>
+                                <mat-option value="shoes">Shoes</mat-option>
+                            </mat-select>
+                        </div>
+                        <div class="col-md-1 form-group">
+                            <div class="input-group mb-3">
+                                <div class="input-group-text">
+                                    <input type="checkbox" [defaultChecked]="true" formControlName="box"
+                                        aria-label="Checkbox for following text input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-group ">
+                            <input matInput  placeholder="Enter the Price" formControlName="price">
+                        </div>
+
+                        <div style="text-align: center;" class="col-md-2 form-group">
+                            <button class="btn btn-primary"  style="font-size: small; "
+                                type="submit">{{ forUpdate ? 'Update' : 'Save' }}</button>
+                        </div>
+                        
+                    </form>
+                </div>
+                <button style="align-items: center; font-size: small;" class="btn btn-primary " mat-mini-fab (click)="addProduct()">
+                    Add New
+                </button>
+    
+            </div>
+        </div>
+    </form>
+    <br>
+    <table class="table table-bordered table-striped" style="text-align: center;" [formGroup]="assignmentForm">
+        <thead >
+            <tr  >
+                <th>Id</th>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+
+        </thead>
+        <tbody formArrayName="productRows" >
+           <tr *ngFor="let product of  assignmentForm.get('productRows')?.value; let i = index"   [formGroupName]="i">
+            <td> {{i+1}} </td>
+            <td> {{product.productName}} </td>
+            <td> {{product.type}} </td>
+            <td> {{product.box}} </td>
+            <td> {{product.price}} </td>
+            <td style="display: flex; justify-content: space-around;" >
+                <button style="font-size: small;" class="btn btn-success" (click)="editData(i)">Edit</button>
+                <button style="font-size: small; " class="btn btn-danger" (click)="deleteProduct(i)">Delete</button>
+            </td>
+           </tr>     
+        </tbody>
+    </table>
+</div>
+
+
+
+
+from simple array:
+
+ <table class="table table-bordered table-striped" style="text-align: center;" [formGroup]="assignmentForm">
+        <thead >
+            <tr  >
+                <th>Id</th>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+
+        </thead>
+        <!-- assignmentForm.get('productRows')?.value;  -->
+        <tbody formArrayName="productRows" >
+           <tr *ngFor="let product of arrayValue let i = index"   [formGroupName]="i">
+            <td> {{i+1}} </td>
+            <td> {{product.productName}} </td>
+            <td> {{product.type}} </td>
+            <td> {{product.box}} </td>
+            <td> {{product.price}} </td>
+            <td style="display: flex; justify-content: space-around;" >
+                <button style="font-size: small;" class="btn btn-success" (click)="editData(i)">Edit</button>
+                <button style="font-size: small; " class="btn btn-danger" (click)="deleteProduct(i)">Delete</button>
+            </td>
+           </tr>     
+        </tbody>
+    </table>
+
+
+this.formValue = this.assignmentForm.getRawValue();
+    this.arrayValue = this.formValue.productRows;
+
+
+
+ 
+
+
+for pushing data in array:
+ saveData() {
+    if (this.rowIndex == null) {
+      this.formValue = this.assignmentForm.getRawValue();
+      this.arrayValue.push(...this.formValue.productRows.map((row: any) => ({
+        productName: row.productName,
+        type: row.type,
+        box: row.box,
+        price: row.price
+      })));
+      this.assignmentForm.reset();
+    }
+
+    else {
+      const control3 = (this.assignmentForm.get('productRows') as FormArray).at(this.rowIndex) as FormGroup;
+
+      this.arrayValue[this.rowIndex] = {
+        productName: control3.get('productName')?.value,
+        type: control3.get('type')?.value,
+        box: control3.get('box')?.value,
+        price: control3.get('price')?.value,
+      };
+      this.assignmentForm.reset();
+    }
+
+    this.forUpdate = false;
+  }

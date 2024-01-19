@@ -1,45 +1,63 @@
 <div class="container">
-    <form [formGroup]="assignmentForm">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="row " style="text-align: center; ">
-                    <h1>Form Assignment</h1>
-                </div>
-                <div  >
-                    <form class="row" [formGroup]="inputForm" (submit)="inputadd()">
-                        <div class="col-md-3 form-group">
-                            <input matInput placeholder="Enter product name" formControlName="productName">
-                        </div>
-                        <div class="col-md-3 form-group ">
-                            <mat-select formControlName="type" placeholder="Product Type">
-                                <mat-option value="clothes">Clothes</mat-option>
-                                <mat-option value="shoes">Shoes</mat-option>
-                            </mat-select>
-                        </div>
-                        <div class="col-md-1 form-group">
-                            <div class="input-group mb-3">
-                                <div class="input-group-text">
-                                    <input type="checkbox" [defaultChecked]="true" formControlName="box"
-                                        aria-label="Checkbox for following text input">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 form-group">
-                            <input matInput placeholder="Enter the Price" formControlName="price">
-                        </div>
-
-                        <div style="text-align: center;" class="col-md-2 form-group">
-                            <button class="btn btn-primary " style="font-size: small; "
-                                type="submit" (click)="saveData()">Save</button>
-                        </div>
-                        
-                    </form>
-                </div>
+<form [formGroup]="assignmentForm">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row " style="text-align: center; ">
+            <h1>Form Assignment</h1>
             </div>
+            <ng-container  formArrayName="productRows" >
+               <div class="row" *ngFor="let product of productRows.controls; let i = index">
+                <div class="row" style="display: flex; align-items: center;" [formGroupName]="i">
+                    <div class="col-md-3 form-group"> 
+                        <input matInput placeholder="Enter product name" formControlName="productName">
+                            <div  *ngIf="productRows.controls[i].get('productName')?.hasError('required') && productRows.controls[i].get('productName')?.touched">
+                            <span class="errorMsg" style="color: red;">Enter Product Name</span>
+                        </div>
+                          
+                    </div>
+                    <div  class="col-md-3 form-group " >
+                        <mat-select  formControlName="type">
+                        <mat-option value="" disabled>Select an option</mat-option>
+                        <mat-option value="clothes">Clothes</mat-option>
+                        <mat-option value="shoes">Shoes</mat-option>
+                    </mat-select>
+                    <div  *ngIf="productRows.controls[i].get('type')?.hasError('required') && productRows.controls[i].get('type')?.touched">
+                        <span class="errorMsg" style="color: red;">Select the Product Type</span>
+                    </div>
+                    </div>
+                    <div class="col-md-1 form-group">
+                        <div class="input-group mb-3">
+                              <div class="input-group-text">
+                                <input type="checkbox" [defaultChecked]="true" formControlName="box" aria-label="Checkbox for following text input">
+                              </div>
+                          </div>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <input matInput placeholder="Enter the Price" formControlName="price">
+                        <div  *ngIf="productRows.controls[i].get('price')?.hasError('required') && productRows.controls[i].get('price')?.touched">
+                            <span class="errorMsg" style="color: red;">Enter the Price</span>   
+                        </div>
+                        <p *ngIf="productRows.controls[i].get('price')?.hasError('pattern')" class="text-danger">Number Only</p>
+                        
+                        <button style="font-size: small; margin-left: 15px;" *ngIf="i!=0" class="btn btn-danger"  (click)="deleteProduct(i)">Delete</button>
+
+                    </div>
+                                        
+                </div>
+               </div>
+               <div style="text-align: center; float: right;"  class="col-md-3 form-group">
+                <button class="btn btn-primary"  style="font-size: small; " type="submit" [disabled]="!productRows.valid" (click)="saveData()" >{{ forUpdate ? 'Update' : 'Save' }}</button>
+            </div>
+            </ng-container>
+            <button style="align-items: center; font-size: small;" class="btn btn-primary " mat-mini-fab (click)="addProduct()">
+                Add New
+            </button>
         </div>
-    </form>
+    </div>
+</form>
+
     <br>
-    <table class="table table-bordered table-striped" style="text-align: center;" [formGroup]="assignmentForm">
+    <table class="table table-bordered table-striped" style="text-align: center;">
         <thead >
             <tr  >
                 <th>Id</th>
@@ -51,21 +69,22 @@
             </tr>
 
         </thead>
-        <tbody formArrayName="productRows" >
-           <tr *ngFor="let product of  assignmentForm.get('productRows')?.value; let i = index"   [formGroupName]="i">
+        <tbody  >
+           <tr *ngFor="let product of arrayValue let i = index"   >
             <td> {{i+1}} </td>
             <td> {{product.productName}} </td>
             <td> {{product.type}} </td>
             <td> {{product.box}} </td>
             <td> {{product.price}} </td>
-            <td style="display: flex; justify-content: space-between;" >
+            <td style="display: flex; justify-content: space-around;" >
                 <button style="font-size: small;" class="btn btn-success" (click)="editData(i)">Edit</button>
-                <button style="font-size: small; " class="btn btn-danger" (click)="deleteProduct(i)">Delete</button>
+                <button style="font-size: small; " class="btn btn-danger" (click)="delTableRow(i)">Delete</button>
             </td>
            </tr>     
         </tbody>
     </table>
+    <div style="display: flex; align-items: baseline; justify-content: flex-end;">
+        <p style=" margin-right: 20px; font-weight: 900;  " >Total Price: {{totalPrice}} </p>
+    </div>
 </div>
-
-
 
